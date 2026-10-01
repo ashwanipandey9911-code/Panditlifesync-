@@ -1,0 +1,494 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PanditLifeSync</title>
+<style>
+*{box-sizing:border-box}
+:root{
+ --navy:#101d38;--green:#159765;--blue:#2563eb;
+ --bg:#f3f7fc;--card:#fff;--text:#1b2945;
+ --muted:#71809a;--line:#e0e9f5;
+}
+body{margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--navy);color:white;
+ padding:22px 14px;display:flex;flex-direction:column;flex-shrink:0}
+.logo{font-size:22px;font-weight:bold;margin:0 10px 5px}
+.logo span{color:#32d18b}
+.tag{font-size:11px;color:#c4d0e3;margin:0 10px 25px}
+.nav button{display:block;width:100%;text-align:left;
+ padding:12px;border-radius:9px;background:transparent;
+ color:#e0e8f5;margin:4px 0}
+.nav button.active,.nav button:hover{background:#168b62;color:white}
+.sidequote{margin:auto 10px 8px;text-align:center;line-height:1.6;
+ color:#e0e8f5;font-size:14px}
+main{flex:1;min-width:0;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;
+ gap:12px;margin-bottom:18px}
+.top h1{font-size:22px;margin:0 0 4px}
+.muted{color:var(--muted);font-size:13px}
+.topright{display:flex;align-items:center;gap:12px}
+.date{background:var(--navy);color:white;border-radius:9px;
+ padding:10px;font-size:12px}
+.avatar{background:#087f86;color:white;border-radius:50%;
+ width:38px;height:38px;display:grid;place-items:center}
+.hero{border-radius:16px;padding:25px;color:white;min-height:145px;
+ background:linear-gradient(110deg,#07526c,#247c92 45%,#f1a77b);
+ position:relative;overflow:hidden;margin-bottom:20px}
+.hero:after{content:"";position:absolute;width:230px;height:230px;
+ border-radius:50%;background:#ffd98a;opacity:.6;
+ right:14%;top:65px;box-shadow:0 0 70px #ffda8a}
+.hero h2,.hero p{position:relative;z-index:1}
+.hero h2{font-size:22px;max-width:430px;line-height:1.4;margin:4px 0}
+.hero p{font-size:13px}
+.hero .quote{position:absolute;z-index:2;right:15px;bottom:15px;
+ background:#0e344b;padding:12px;border:1px solid #248a75;
+ border-radius:10px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);
+ border-radius:13px;padding:16px;min-width:0}
+.stat{min-height:125px}
+.stathead{display:flex;align-items:center;gap:10px;font-size:13px}
+.bubble{width:38px;height:38px;border-radius:50%;
+ display:grid;place-items:center;background:#e4edff;font-size:19px}
+.green{background:#d8f6e7}.orange{background:#fff0cb}
+.pink{background:#ffe0e8}.blue{background:#dceeff}
+.number{font-size:22px;font-weight:bold;text-align:center;margin:14px 0 8px}
+.progress{height:9px;border-radius:10px;background:#e8eef8;overflow:hidden}
+.progress span{display:block;height:100%;border-radius:10px;background:#159765}
+.small{font-size:11px;color:var(--muted);margin-top:8px}
+.grid{display:grid;grid-template-columns:1.05fr 1.05fr .9fr;
+ gap:14px;align-items:start}
+.card h2{font-size:16px;margin:0 0 15px}
+.card h2 small{float:right;color:#078b88;font-size:11px;font-weight:normal}
+.primary{background:var(--green);color:white;border-radius:9px;
+ padding:10px 14px}
+.secondary{background:#eef3fc;color:#263653;border-radius:9px;
+ padding:9px 12px}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+.timer{text-align:center;background:#f1f0ff}
+.clock{width:190px;height:190px;border:8px solid #dbe4f8;
+ border-top-color:#1a9c7b;border-right-color:#1a9c7b;
+ border-radius:50%;margin:22px auto 12px;display:flex;
+ flex-direction:column;align-items:center;justify-content:center}
+.clock strong{font-size:30px}
+.clock button{margin-top:10px;border-radius:50%;width:46px;height:46px;
+ background:var(--green);color:white;font-size:18px}
+.modes{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
+.task{display:flex;align-items:center;gap:9px;padding:11px 0;
+ border-bottom:1px solid var(--line);font-size:13px}
+.task input{accent-color:var(--green)}
+.task .tasktext{flex:1;overflow-wrap:anywhere}
+.done{text-decoration:line-through;color:#8994a6}
+.delete{background:transparent;color:#8190a8;font-size:16px}
+.habit{display:flex;align-items:center;gap:9px;padding:10px 0;
+ border-bottom:1px solid var(--line);font-size:12px}
+.habit span:nth-child(2){flex:1}
+.check{border-radius:50%;width:22px;height:22px;
+ background:#e4edf6;color:#52647c}
+.check.on{background:#159765;color:white}
+input[type=text],input[type=number],input[type=time]{
+ border:1px solid #d9e3f0;border-radius:8px;padding:10px;
+ min-width:0;background:white;color:#1b2945}
+.addrow{display:flex;gap:6px;margin:10px 0}
+.addrow input{flex:1;width:60%}
+.schedule{display:grid;grid-template-columns:60px 14px 1fr;
+ gap:8px;align-items:center;font-size:12px;padding:8px 0}
+.dot{width:9px;height:9px;border-radius:50%;background:#1c9b78}
+.book{display:flex;align-items:center;gap:10px;margin:13px 0}
+.cover{width:45px;height:58px;border-radius:5px;
+ background:#f5d44c;display:grid;place-items:center;
+ font-size:10px;text-align:center;font-weight:bold;color:#333;
+ flex-shrink:0;padding:4px}
+.bookinfo{flex:1;min-width:0;font-size:12px}
+.bookinfo strong{display:block;margin-bottom:5px}
+.bookinfo input{width:100%;padding:5px;margin-top:5px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+.section{display:none}
+.section.active{display:block}
+.mobilebar{display:none}
+@media(max-width:1050px){
+ .stats{grid-template-columns:repeat(3,1fr)}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .sidebar{display:none}
+ main{padding:14px 12px 80px}
+ .top h1{font-size:18px}
+ .topright{gap:6px}
+ .date{font-size:10px;padding:8px}
+ .hero{padding:20px;min-height:150px}
+ .hero h2{font-size:18px;max-width:250px}
+ .hero .quote{font-size:10px;right:8px;bottom:8px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .stat{padding:12px;min-height:120px}
+ .grid{grid-template-columns:1fr;gap:10px}
+ .mobilebar{display:flex;position:fixed;bottom:0;left:0;right:0;
+ background:var(--navy);z-index:10;overflow-x:auto}
+ .mobilebar button{flex:1;min-width:65px;background:transparent;
+ color:white;padding:10px 4px;font-size:10px}
+ .mobilebar button.active{background:#168b62}
+ .clock{width:175px;height:175px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+ <div class="logo">🌿 Pandit<span>LifeSync</span></div>
+ <div class="tag">Plan • Study • Grow • Be Better</div>
+ <nav class="nav" id="sideNav">
+  <button class="active" data-page="home">⌂　Home</button>
+  <button data-page="timer">◷　Study Timer</button>
+  <button data-page="time">▣　Time Management</button>
+  <button data-page="library">▤　Library</button>
+  <button data-page="tasks">☑　Tasks</button>
+  <button data-page="habits">♡　Healthy Habits</button>
+  <button data-page="water">💧　Water Tracker</button>
+  <button data-page="steps">👟　Step Counter</button>
+ </nav>
+ <div class="sidequote">🌱<br><br>Small steps every day<br>lead to big results.<br><br>— PanditLifeSync</div>
+</aside>
+
+<main>
+ <div class="top">
+  <div><h1>Good Morning, Ashwani 👋</h1>
+   <div class="muted">Keep going! Your future self will thank you.</div>
+  </div>
+  <div class="topright">
+   <span>🔔</span><div class="date" id="todayDate"></div>
+   <div class="avatar">A</div>
+  </div>
+ </div>
+
+ <section class="section active" id="home">
+  <div class="hero">
+   <h2>“Discipline today builds freedom tomorrow.”</h2>
+   <p>— PanditLifeSync</p>
+   <div class="quote">🌿　You're doing great!<br>　　 Stay consistent 💚</div>
+  </div>
+  <div class="stats">
+   <div class="card stat"><div class="stathead"><span class="bubble">📚</span>Study Time</div>
+    <div class="number"><span id="studyStat">0</span> <small>min</small></div>
+    <div class="progress"><span id="studyBar" style="width:0%"></span></div>
+    <div class="small">Goal: 4 hrs</div></div>
+   <div class="card stat"><div class="stathead"><span class="bubble green">✓</span>Tasks</div>
+    <div class="number"><span id="taskStat">0 / 0</span></div>
+    <div class="progress"><span id="taskBar" style="width:0%"></span></div></div>
+   <div class="card stat"><div class="stathead"><span class="bubble blue">💧</span>Water</div>
+    <div class="number"><span id="waterStat">0</span><small> / 8 glasses</small></div>
+    <div class="progress"><span id="waterBar" style="width:0%"></span></div></div>
+   <div class="card stat"><div class="stathead"><span class="bubble orange">👟</span>Steps</div>
+    <div class="number" id="stepsStat">0</div>
+    <div class="progress"><span id="stepsBar" style="width:0%"></span></div>
+    <div class="small">Goal: 8,000</div></div>
+   <div class="card stat"><div class="stathead"><span class="bubble pink">♡</span>Habits</div>
+    <div class="number" id="habitStat">0 / 7</div>
+    <div class="progress"><span id="habitBar" style="width:0%"></span></div></div>
+  </div>
+
+  <div class="grid">
+   <div class="card timer">
+    <h2>◷ Study Timer <small>Focus Mode</small></h2>
+    <div class="clock"><strong id="clock">25:00</strong>
+     <div class="muted">Focus Time</div>
+     <button id="timerBtn" onclick="toggleTimer()">▶</button>
+    </div>
+    <div class="modes">
+     <button class="primary" onclick="setTimer(25)">25 min</button>
+     <button class="secondary" onclick="setTimer(50)">50 min</button>
+     <button class="secondary" onclick="setTimer(90)">90 min</button>
+     <button class="secondary" onclick="resetTimer()">↻</button>
+    </div>
+   </div>
+
+   <div class="card">
+    <h2>☑ Today's Tasks <small><button class="primary" onclick="addTask()">＋ Add Task</button></small></h2>
+    <div class="addrow"><input id="taskInput" type="text" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTask()"></div>
+    <div id="taskList"></div>
+   </div>
+
+   <div class="card">
+    <h2>♡ Healthy Habits <small><button class="secondary" onclick="showPage('habits')">View All</button></small></h2>
+    <div id="homeHabits"></div>
+   </div>
+
+   <div class="card">
+    <h2>📖 Library <small><button class="secondary" onclick="showPage('library')">View All</button></small></h2>
+    <div class="addrow"><input id="bookInput" type="text" placeholder="Add a book..." onkeydown="if(event.key==='Enter')addBook()">
+     <button class="secondary" onclick="addBook()">＋</button></div>
+    <div id="homeBooks"></div>
+   </div>
+
+   <div class="card">
+    <h2>▣ Time Management <small><button class="secondary" onclick="showPage('time')">View All</button></small></h2>
+    <div id="homeSchedule"></div>
+   </div>
+
+   <div class="card">
+    <h2>📊 Quick Stats</h2>
+    <div class="row">
+     <div class="card" style="flex:1;background:#f0edff">
+      <div class="small">Total Study Time</div><div class="number" id="quickStudy">0 min</div>
+     </div>
+     <div class="card" style="flex:1;background:#e2f8ed">
+      <div class="small">Tasks Done</div><div class="number" id="quickTasks">0 / 0</div>
+     </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+     <div class="card" style="flex:1;background:#e6f3ff">
+      <div class="small">Water Intake</div><div class="number" id="quickWater">0 / 8</div>
+     </div>
+     <div class="card" style="flex:1;background:#fff4dc">
+      <div class="small">Steps Today</div><div class="number" id="quickSteps">0</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="timer">
+  <div class="card timer"><h2>◷ Study Timer</h2>
+   <p class="muted">Choose a focus session and press play.</p>
+   <div class="clock"><strong id="clock2">25:00</strong>
+    <div class="muted">Focus Time</div><button onclick="toggleTimer()">▶</button></div>
+   <div class="modes">
+    <button class="primary" onclick="setTimer(25)">25 min</button>
+    <button class="secondary" onclick="setTimer(50)">50 min</button>
+    <button class="secondary" onclick="setTimer(90)">90 min</button>
+    <button class="secondary" onclick="resetTimer()">Reset</button>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="time">
+  <div class="card"><h2>▣ Daily Time Management</h2>
+   <p class="muted">Edit your routine by adding your own activities.</p>
+   <div class="addrow"><input id="timeInput" type="text" placeholder="Activity">
+    <input id="timeAt" type="time" value="16:00">
+    <button class="primary" onclick="addSchedule()">Add</button></div>
+   <div id="scheduleList"></div>
+  </div>
+ </section>
+
+ <section class="section" id="library">
+  <div class="card"><h2>📖 My Library</h2>
+   <div class="addrow"><input id="bookInput2" type="text" placeholder="Book name">
+    <button class="primary" onclick="addBook(true)">＋ Add Book</button></div>
+   <div id="bookList"></div>
+  </div>
+ </section>
+
+ <section class="section" id="tasks">
+  <div class="card"><h2>☑ My Tasks</h2>
+   <div class="addrow"><input id="taskInput2" type="text" placeholder="Enter a task">
+    <button class="primary" onclick="addTask(true)">＋ Add</button></div>
+   <div id="taskList2"></div>
+  </div>
+ </section>
+
+ <section class="section" id="habits">
+  <div class="card"><h2>♡ Healthy Habits</h2>
+   <p class="muted">Tick habits as you complete them today.</p>
+   <div id="allHabits"></div>
+  </div>
+ </section>
+
+ <section class="section" id="water">
+  <div class="card"><h2>💧 Water Tracker</h2>
+   <p class="muted">Record each glass you drink.</p>
+   <div class="number"><span id="waterPage">0</span> / 8 glasses</div>
+   <div class="progress"><span id="waterPageBar" style="width:0%"></span></div>
+   <div class="row" style="margin-top:16px">
+    <button class="primary" onclick="changeWater(1)">＋ Add glass</button>
+    <button class="secondary" onclick="changeWater(-1)">− Remove</button>
+    <button class="secondary" onclick="changeWater(-999)">Reset</button>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="steps">
+  <div class="card"><h2>👟 Step Counter</h2>
+   <p class="muted">Add steps manually. This demo does not use your phone's motion sensor.</p>
+   <div class="number" id="stepsPage">0 steps</div>
+   <div class="progress"><span id="stepsPageBar" style="width:0%"></span></div>
+   <div class="addrow" style="margin-top:18px">
+    <input id="stepsInput" type="number" min="1" placeholder="Enter steps">
+    <button class="primary" onclick="addSteps()">Add</button>
+   </div>
+   <button class="secondary" onclick="addSteps(1000)">＋ 1,000 steps</button>
+   <button class="secondary" onclick="resetSteps()">Reset</button>
+  </div>
+ </section>
+
+ <div class="footer">🌿 PanditLifeSync　•　Plan • Study • Grow • Be Better</div>
+</main>
+</div>
+
+<nav class="mobilebar" id="mobileNav">
+ <button class="active" data-page="home">⌂<br>Home</button>
+ <button data-page="timer">◷<br>Timer</button>
+ <button data-page="time">▣<br>Routine</button>
+ <button data-page="tasks">☑<br>Tasks</button>
+ <button data-page="habits">♡<br>Habits</button>
+ <button data-page="library">📖<br>Library</button>
+</nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const defaults={
+ tasks:[],books:[],water:0,steps:0,study:0,
+ habits:[false,false,false,false,false,false,false],
+ schedule:[
+  {time:"06:00",name:"Wake Up & Freshen Up"},
+  {time:"07:00",name:"Exercise / Walk"},
+  {time:"08:00",name:"School / College"},
+  {time:"12:00",name:"Lunch Break"},
+  {time:"14:00",name:"Study Session"},
+  {time:"16:00",name:"Library / Reading"},
+  {time:"19:00",name:"Break + Snacks"},
+  {time:"20:00",name:"Self Study / Revision"},
+  {time:"22:00",name:"Dinner"},
+  {time:"22:30",name:"Sleep"}
+ ]
+};
+let data;
+try{data=JSON.parse(localStorage.getItem("plsData"))||structuredClone(defaults)}
+catch(e){data=JSON.parse(JSON.stringify(defaults))}
+const habitNames=["Drink water","Exercise / Walk","Eat healthy food",
+ "Sleep 7–8 hours","Read a book","Meditate","No mobile before sleep"];
+let duration=25*60,remaining=duration,interval=null;
+
+function save(){localStorage.setItem("plsData",JSON.stringify(data));render()}
+function showPage(id){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll("[data-page]").forEach(b=>
+  b.classList.toggle("active",b.dataset.page===id));
+}
+document.querySelectorAll("[data-page]").forEach(b=>
+ b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function addTask(other=false){
+ const input=$(other?"taskInput2":"taskInput");
+ const name=input.value.trim();if(!name)return;
+ data.tasks.push({name,done:false});input.value="";save();
+}
+function toggleTask(i){data.tasks[i].done=!data.tasks[i].done;save()}
+function deleteTask(i){data.tasks.splice(i,1);save()}
+function renderTasks(){
+ const html=data.tasks.map((t,i)=>`<div class="task">
+ <input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${i})">
+ <span class="tasktext ${t.done?"done":""}">${escapeHTML(t.name)}</span>
+ <button class="delete" onclick="deleteTask(${i})">×</button></div>`).join("")||'<p class="muted">No tasks yet. Add one above!</p>';
+ $("taskList").innerHTML=html;$("taskList2").innerHTML=html;
+}
+function addBook(other=false){
+ const input=$(other?"bookInput2":"bookInput");
+ const name=input.value.trim();if(!name)return;
+ data.books.push({name,progress:0});input.value="";save();
+}
+function updateBook(i,v){data.books[i].progress=Math.max(0,Math.min(100,Number(v)||0));save()}
+function deleteBook(i){data.books.splice(i,1);save()}
+function renderBooks(){
+ const html=data.books.map((b,i)=>`<div class="book">
+ <div class="cover">📘<br>${escapeHTML(b.name.slice(0,13))}</div>
+ <div class="bookinfo"><strong>${escapeHTML(b.name)}</strong>
+ <div class="progress"><span style="width:${b.progress}%"></span></div>
+ <div class="row between"><span class="small">Read ${b.progress}%</span>
+ <button class="delete" onclick="deleteBook(${i})">×</button></div>
+ <input type="range" min="0" max="100" value="${b.progress}"
+ onchange="updateBook(${i},this.value)"></div></div>`).join("")||'<p class="muted">No books added yet.</p>';
+ $("homeBooks").innerHTML=html;$("bookList").innerHTML=html;
+}
+function changeWater(n){
+ data.water=n===-999?0:Math.max(0,data.water+n);save();
+}
+function addSteps(n){
+ const input=$("stepsInput");
+ const amount=n||Number(input.value);
+ if(!amount||amount<1)return;
+ data.steps+=Math.floor(amount);input.value="";save();
+}
+function resetSteps(){data.steps=0;save()}
+function toggleHabit(i){data.habits[i]=!data.habits[i];save()}
+function renderHabits(){
+ const html=habitNames.map((name,i)=>`<div class="habit">
+ <span class="bubble ${["blue","green","pink","blue","green","pink","blue"][i]}">${["💧","👟","🍎","🌙","📖","🪷","📱"][i]}</span>
+ <span>${name}</span><button class="check ${data.habits[i]?"on":""}"
+ onclick="toggleHabit(${i})">${data.habits[i]?"✓":"○"}</button></div>`).join("");
+ $("homeHabits").innerHTML=html;$("allHabits").innerHTML=html;
+}
+function addSchedule(){
+ const name=$("timeInput").value.trim();
+ const time=$("timeAt").value;
+ if(!name||!time)return;
+ data.schedule.push({time,name});
+ data.schedule.sort((a,b)=>a.time.localeCompare(b.time));
+ $("timeInput").value="";save();
+}
+function deleteSchedule(i){data.schedule.splice(i,1);save()}
+function renderSchedule(){
+ const html=data.schedule.map((s,i)=>`<div class="schedule">
+ <span>${s.time}</span><span class="dot"></span>
+ <span>${escapeHTML(s.name)} <button class="delete" onclick="deleteSchedule(${i})">×</button></span>
+ </div>`).join("")||'<p class="muted">No activities added.</p>';
+ $("homeSchedule").innerHTML=html;$("scheduleList").innerHTML=html;
+}
+function setTimer(min){
+ pauseTimer();duration=min*60;remaining=duration;updateClock();
+}
+function updateClock(){
+ const m=Math.floor(remaining/60),s=remaining%60;
+ const val=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+ $("clock").textContent=val;$("clock2").textContent=val;
+ $("timerBtn").textContent=interval?"Ⅱ":"▶";
+}
+function pauseTimer(){if(interval){clearInterval(interval);interval=null}updateClock()}
+function toggleTimer(){
+ if(interval){pauseTimer();return}
+ if(remaining<=0)remaining=duration;
+ interval=setInterval(()=>{
+  remaining--;
+  if(remaining<=0){remaining=0;pauseTimer();alert("Focus session complete! Take a short break.");}
+  updateClock();
+ },1000);
+ updateClock();
+}
+function resetTimer(){pauseTimer();remaining=duration;updateClock()}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ renderTasks();renderBooks();renderHabits();renderSchedule();
+ $("studyStat").textContent=data.study;
+ $("studyBar").style.width=Math.min(100,data.study/240*100)+"%";
+ const completed=data.tasks.filter(t=>t.done).length;
+ $("taskStat").textContent=completed+" / "+data.tasks.length;
+ $("quickTasks").textContent=completed+" / "+data.tasks.length;
+ $("taskBar").style.width=(data.tasks.length?completed/data.tasks.length*100:0)+"%";
+ $("waterStat").textContent=data.water;$("quickWater").textContent=data.water+" / 8";
+ $("waterPage").textContent=data.water;
+ $("waterBar").style.width=Math.min(100,data.water/8*100)+"%";
+ $("waterPageBar").style.width=Math.min(100,data.water/8*100)+"%";
+ $("stepsStat").textContent=data.steps.toLocaleString();
+ $("quickSteps").textContent=data.steps.toLocaleString();
+ $("stepsPage").textContent=data.steps.toLocaleString()+" steps";
+ $("stepsBar").style.width=Math.min(100,data.steps/8000*100)+"%";
+ $("stepsPageBar").style.width=Math.min(100,data.steps/8000*100)+"%";
+ const done=data.habits.filter(Boolean).length;
+ $("habitStat").textContent=done+" / 7";
+ $("habitBar").style.width=done/7*100+"%";
+ $("quickStudy").textContent=data.study+" min";
+}
+$("todayDate").textContent=new Date().toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+render();updateClock();
+</script>
+</body>
+</html>
